@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lina Trading Journal</title>
+<title>🟦 Lina Trading Journal</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -66,7 +66,7 @@
   ::-webkit-scrollbar-thumb { background: rgba(0,255,255,0.18); border-radius: 99px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,255,0.35); }
 
-  #app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+  #app { display: flex; min-height: 100vh; position: relative; z-index: 0; }
 
   /* ─── SIDEBAR ─── */
   #sidebar {
@@ -76,7 +76,7 @@
     display: flex; flex-direction: column;
     position: fixed; top: 0; left: 0; bottom: 0;
     z-index: 100;
-    backdrop-filter: blur(24px);
+
     transition: transform 0.32s cubic-bezier(.4,0,.2,1);
     overflow-y: auto; overflow-x: hidden;
   }
@@ -488,7 +488,7 @@
   /* ─── SIDEBAR OVERLAY ─── */
   #sidebar-overlay {
     display: none; position: fixed; inset: 0; z-index: 99;
-    background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.55);
   }
 
   /* ─── MISC UTILS ─── */
@@ -1689,17 +1689,30 @@ function destroyChart(id) { if (charts[id]) { charts[id]._destroyed = true; dele
 class LiteChart {
   constructor(canvas, opts) {
     this.canvas = canvas; this.opts = opts; this._destroyed = false;
-    this._resizeObserver = new ResizeObserver(() => { if (!this._destroyed) this.draw(); });
+    this._lastW = 0;
+    this._raf = null;
+    this._resizeObserver = new ResizeObserver(() => {
+      if (this._destroyed) return;
+      // Debounce via rAF to avoid infinite loop (canvas resize triggers observer)
+      if (this._raf) cancelAnimationFrame(this._raf);
+      this._raf = requestAnimationFrame(() => {
+        const W = this.canvas.parentElement ? (this.canvas.parentElement.clientWidth || 0) : 0;
+        if (W > 10 && W !== this._lastW) this.draw();
+      });
+    });
     this._resizeObserver.observe(canvas.parentElement || canvas);
-    this.draw();
+    requestAnimationFrame(() => this.draw());
   }
   destroy() {
     this._destroyed = true;
     if (this._resizeObserver) this._resizeObserver.disconnect();
+    if (this._raf) cancelAnimationFrame(this._raf);
   }
   draw() {
     const { canvas, opts } = this;
-    const W = canvas.parentElement ? canvas.parentElement.clientWidth || 400 : 400;
+    const W = canvas.parentElement ? (canvas.parentElement.clientWidth || 0) : 0;
+    if (W < 10) return;
+    this._lastW = W;
     const H = parseInt(canvas.getAttribute('height')) || 200;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = W * dpr; canvas.height = H * dpr;
@@ -1862,7 +1875,8 @@ function renderEquityChart(startCapital, trades) {
   let cap=startCapital;
   sorted.forEach(t => { cap+=t.pnl; labels.push(t.date.slice(5)); data.push(parseFloat(cap.toFixed(2))); });
   const ctx=document.getElementById('chart-equity'); if(!ctx) return;
-  charts['equity']=new LiteChart(ctx,{labels,data,color:data[data.length-1]>=data[0]?'#00FF88':'#FF3366',fill:true,type:'line'});
+  const color = data[data.length-1]>=data[0]?'#00FF88':'#FF3366';
+  charts['equity']=new LiteChart(ctx,{labels,data,color,fill:true,type:'line'});
 }
 function renderWLChart(w,l,b) {
   destroyChart('wl');
@@ -2851,12 +2865,14 @@ document.addEventListener('DOMContentLoaded', init);
 
 <style>
   /* Mode visiteur (non connecté) : toutes les actions d'ajout/modification/suppression
-     sont grisées et inaccessibles. La navigation (.nav-item, sidebar) reste libre. */
+     sont grisées et inaccessibles. La navigation (.nav-item, sidebar) reste libre.
+     IMPORTANT : pas de filter:grayscale ici — ça crée un stacking context
+     qui piège les éléments position:fixed (sidebar, overlay) et les grise aussi. */
   body.read-only .write-action {
     opacity: 0.35;
     pointer-events: none;
     cursor: not-allowed;
-    filter: grayscale(1);
+    color: var(--text-muted);
   }
 </style>
 </body>
