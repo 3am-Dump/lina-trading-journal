@@ -942,21 +942,16 @@
           <div class="section-title">📁 Documents</div>
           <div class="row" style="gap:8px">
             <span id="doc-count" style="font-size:11px;color:var(--text-muted)"></span>
-            <button class="btn btn-primary write-action" onclick="document.getElementById('doc-upload-input').click()">📎 Importer</button>
+            <button class="btn btn-primary write-action" onclick="openModal('modal-add-doc')">📎 Ajouter un lien</button>
           </div>
         </div>
-        <input type="file" id="doc-upload-input" accept=".pdf,.png,.jpg,.jpeg" style="display:none" onchange="handleDocUpload(event)" multiple>
-        <div class="upload-zone mb-20" id="doc-drop-zone" onclick="document.getElementById('doc-upload-input').click()">
-          <div class="upload-icon">📁</div>
-          <div class="upload-text">
-            Glissez vos fichiers ici ou cliquez pour parcourir<br>
-            <span style="color:var(--text-muted);font-size:11px">PDF, PNG, JPG, JPEG — Stockage persistant IndexedDB</span>
-          </div>
+        <div style="background:rgba(0,157,255,0.06);border:1px solid rgba(0,255,255,0.1);border-radius:12px;padding:14px 16px;margin-bottom:18px;font-size:12px;color:var(--text-secondary);line-height:1.7">
+          📌 <b style="color:var(--cyan)">Mode Liens</b> — Hébergez vos documents sur <b>Google Drive</b>, <b>Mediafire</b> ou tout autre service, puis collez le lien ici. Vos liens sont sauvegardés localement.
         </div>
         <div id="docs-grid" class="grid grid-4">
           <div class="no-data" style="grid-column:1/-1">
             <div class="icon">📁</div>
-            <div>Aucun document. Importez vos premiers fichiers.</div>
+            <div>Aucun document. Ajoutez votre premier lien.</div>
           </div>
         </div>
       </div>
@@ -965,9 +960,11 @@
       <div id="section-gallery" class="section">
         <div class="section-header">
           <div class="section-title">📸 Galerie de Setups</div>
-          <button class="btn btn-primary write-action" onclick="document.getElementById('gallery-upload-input').click()">📸 Ajouter Setup</button>
+          <button class="btn btn-primary write-action" onclick="openModal('modal-add-gallery')">📸 Ajouter un lien</button>
         </div>
-        <input type="file" id="gallery-upload-input" accept="image/*" style="display:none" onchange="handleGalleryUpload(event)" multiple>
+        <div style="background:rgba(0,157,255,0.06);border:1px solid rgba(0,255,255,0.1);border-radius:12px;padding:14px 16px;margin-bottom:18px;font-size:12px;color:var(--text-secondary);line-height:1.7">
+          📌 <b style="color:var(--cyan)">Mode Liens</b> — Hébergez vos captures sur <b>Google Drive</b>, <b>Mediafire</b> ou tout autre service, puis collez le lien ici. Vos liens sont sauvegardés localement.
+        </div>
         <div class="filter-bar" id="gallery-filters">
           <span class="filter-chip active" onclick="setGalleryFilter(this,'all')">Tous</span>
           <span class="filter-chip" onclick="setGalleryFilter(this,'CRT MONTHLY')">📅 CRT MONTHLY</span>
@@ -979,7 +976,7 @@
         <div class="gallery-grid" id="gallery-grid">
           <div class="no-data" style="grid-column:1/-1">
             <div class="icon">📸</div>
-            <div>Aucun setup. Importez vos captures de trading.</div>
+            <div>Aucun setup. Ajoutez votre premier lien.</div>
           </div>
         </div>
       </div>
@@ -1037,7 +1034,7 @@
             <div style="font-size:12px;color:var(--text-secondary);line-height:2">
               <b style="color:var(--cyan)">🟦 Lina Trading Journal v2.0</b><br>
               Trading OS personnel — Toutes les données sont sauvegardées localement sur votre appareil.<br>
-              <span style="color:var(--text-muted)">LocalStorage pour les trades, props et scripts • IndexedDB pour les documents et images</span><br>
+              <span style="color:var(--text-muted)">LocalStorage pour les trades, props, scripts, liens documents et galerie</span><br>
               <span style="color:var(--green-neon)">✅ 100% hors-ligne • Aucune donnée envoyée sur internet • Confidentialité garantie</span>
             </div>
           </div>
@@ -1262,13 +1259,15 @@
       <div class="modal-title" id="gallery-detail-name">Setup</div>
       <button class="modal-close" onclick="closeModal('modal-gallery-detail')">✕</button>
     </div>
-    <img id="gallery-detail-img" style="width:100%;border-radius:12px;max-height:62vh;object-fit:contain;background:#010609" alt="Setup">
+    <div style="background:rgba(0,10,28,0.6);border-radius:12px;padding:22px;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">📸</div>
+      <div id="gallery-detail-link-display" style="font-size:13px;color:var(--cyan);word-break:break-all;margin-bottom:14px"></div>
+      <a id="gallery-detail-open-btn" href="#" target="_blank" class="btn btn-primary" style="display:inline-flex;gap:8px;align-items:center">🔗 Ouvrir le lien</a>
+    </div>
     <div class="mt-12">
       <div class="row" style="gap:8px;flex-wrap:wrap">
         <span id="gallery-detail-cat" class="badge badge-cyan"></span>
         <span id="gallery-detail-date" style="font-size:11px;color:var(--text-muted)"></span>
-        <div style="flex:1"></div>
-        <button class="btn btn-outline btn-sm" onclick="downloadGalleryImg()">⬇️ Télécharger</button>
       </div>
       <div id="gallery-detail-notes" style="margin-top:10px;font-size:12px;color:var(--text-secondary);background:rgba(0,10,28,0.5);padding:10px;border-radius:10px;min-height:36px" contenteditable="true" onblur="saveGalleryNotes()"></div>
       <div style="font-size:10px;color:var(--text-muted);margin-top:4px">💡 Cliquez sur la zone ci-dessus pour ajouter des notes</div>
@@ -1283,30 +1282,83 @@
       <div class="modal-title" id="doc-preview-name">Document</div>
       <button class="modal-close" onclick="closeModal('modal-doc-preview')">✕</button>
     </div>
-    <div id="doc-preview-content" style="max-height:68vh;overflow:auto;border-radius:12px;background:#010609;padding:4px"></div>
-    <div class="mt-12 row" style="justify-content:flex-end;gap:8px">
-      <button class="btn btn-primary btn-sm" id="doc-dl-btn">⬇️ Télécharger</button>
+    <div style="background:rgba(0,10,28,0.6);border-radius:12px;padding:28px;text-align:center">
+      <div style="font-size:52px;margin-bottom:12px">📄</div>
+      <div id="doc-preview-link-display" style="font-size:13px;color:var(--cyan);word-break:break-all;margin-bottom:14px"></div>
+      <a id="doc-preview-open-btn" href="#" target="_blank" class="btn btn-primary" style="display:inline-flex;gap:8px;align-items:center">🔗 Ouvrir / Télécharger</a>
+    </div>
+    <div style="margin-top:12px;text-align:right">
+      <button id="doc-dl-btn" class="btn btn-outline btn-sm" onclick="closeModal('modal-doc-preview')">Fermer</button>
     </div>
   </div>
 </div>
 
-<!-- ════ MODAL: GALLERY CATEGORY ════ -->
-<div class="modal-overlay" id="modal-gallery-cat">
-  <div class="modal" style="max-width:440px">
+<!-- ════ MODAL: AJOUTER LIEN DOC ════ -->
+<div class="modal-overlay" id="modal-add-doc">
+  <div class="modal" style="max-width:500px">
     <div class="modal-header">
-      <div class="modal-title">📂 Choisir une Catégorie</div>
-      <button class="modal-close" onclick="closeModal('modal-gallery-cat')">✕</button>
+      <div class="modal-title">📎 Ajouter un document (lien)</div>
+      <button class="modal-close" onclick="closeModal('modal-add-doc')">✕</button>
     </div>
-    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Sélectionnez la timeframe pour ce(s) setup(s) :</div>
-    <div class="cat-grid" id="cat-grid">
-      <div class="cat-btn" onclick="selectCat('CRT MONTHLY')"><div style="font-size:20px;margin-bottom:4px">📅</div>CRT MONTHLY</div>
-      <div class="cat-btn" onclick="selectCat('CRT WEEKLY')"><div style="font-size:20px;margin-bottom:4px">📆</div>CRT WEEKLY</div>
-      <div class="cat-btn" onclick="selectCat('CRT DAILY')"><div style="font-size:20px;margin-bottom:4px">📊</div>CRT DAILY</div>
-      <div class="cat-btn" onclick="selectCat('CRT H4')"><div style="font-size:20px;margin-bottom:4px">⏱</div>CRT H4</div>
-      <div class="cat-btn" onclick="selectCat('CRT H1')"><div style="font-size:20px;margin-bottom:4px">⏰</div>CRT H1</div>
-      <div class="cat-btn" onclick="selectCat('Autre')"><div style="font-size:20px;margin-bottom:4px">📌</div>Autre</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);margin-bottom:5px;display:block">NOM DU DOCUMENT</label>
+        <input id="new-doc-name" class="form-input" placeholder="ex: Plan de trading Juin 2025" style="width:100%">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);margin-bottom:5px;display:block">LIEN (Google Drive, Mediafire…)</label>
+        <input id="new-doc-url" class="form-input" placeholder="https://drive.google.com/..." style="width:100%">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);margin-bottom:5px;display:block">TYPE</label>
+        <select id="new-doc-type" class="form-select" style="width:100%">
+          <option value="pdf">📄 PDF</option>
+          <option value="image">🖼️ Image</option>
+          <option value="other">📎 Autre</option>
+        </select>
+      </div>
+      <div class="row" style="gap:8px;justify-content:flex-end;margin-top:4px">
+        <button class="btn btn-outline" onclick="closeModal('modal-add-doc')">Annuler</button>
+        <button class="btn btn-primary" onclick="saveDocLink()">✅ Enregistrer</button>
+      </div>
     </div>
   </div>
+</div>
+
+<!-- ════ MODAL: AJOUTER LIEN GALERIE ════ -->
+<div class="modal-overlay" id="modal-add-gallery">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">📸 Ajouter un setup (lien)</div>
+      <button class="modal-close" onclick="closeModal('modal-add-gallery')">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);margin-bottom:5px;display:block">NOM DU SETUP</label>
+        <input id="new-gal-name" class="form-input" placeholder="ex: Setup CRT Daily EURUSD" style="width:100%">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);margin-bottom:5px;display:block">LIEN (Google Drive, Mediafire…)</label>
+        <input id="new-gal-url" class="form-input" placeholder="https://drive.google.com/..." style="width:100%">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--text-muted);margin-bottom:5px;display:block">TIMEFRAME</label>
+        <select id="new-gal-cat" class="form-select" style="width:100%">
+          <option value="CRT MONTHLY">📅 CRT MONTHLY</option>
+          <option value="CRT WEEKLY">📆 CRT WEEKLY</option>
+          <option value="CRT DAILY">📊 CRT DAILY</option>
+          <option value="CRT H4">⏱ CRT H4</option>
+          <option value="CRT H1">⏰ CRT H1</option>
+        </select>
+      </div>
+      <div class="row" style="gap:8px;justify-content:flex-end;margin-top:4px">
+        <button class="btn btn-outline" onclick="closeModal('modal-add-gallery')">Annuler</button>
+        <button class="btn btn-primary" onclick="saveGalleryLink()">✅ Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -2282,183 +2334,172 @@ function renderProps() {
 // ══════════════════════════════════════════════
 // DOCUMENTS
 // ══════════════════════════════════════════════
-async function handleDocUpload(event) {
-  const files=Array.from(event.target.files);
-  let count=0;
-  for(const file of files) {
-    await new Promise(res => {
-      const reader=new FileReader();
-      reader.onload=async e=>{
-        await idbPut('documents',{id:Date.now()+Math.random(),name:file.name,type:file.type,size:file.size,data:e.target.result,date:new Date().toISOString()});
-        count++; res();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-  toast(`📁 ${count} fichier(s) importé(s)`);
+// ══════════════════════════════════════════════
+// DOCUMENTS (mode liens)
+// ══════════════════════════════════════════════
+function getDocLinks() {
+  try { return JSON.parse(localStorage.getItem('lina_doc_links') || '[]'); } catch(e) { return []; }
+}
+function saveDocLinks(arr) {
+  localStorage.setItem('lina_doc_links', JSON.stringify(arr));
+}
+
+function saveDocLink() {
+  const name = document.getElementById('new-doc-name').value.trim();
+  const url = document.getElementById('new-doc-url').value.trim();
+  const type = document.getElementById('new-doc-type').value;
+  if(!name || !url) { toast('⚠️ Remplis le nom et le lien'); return; }
+  const docs = getDocLinks();
+  docs.push({ id: Date.now() + Math.random(), name, url, type, date: new Date().toISOString() });
+  saveDocLinks(docs);
+  document.getElementById('new-doc-name').value = '';
+  document.getElementById('new-doc-url').value = '';
+  closeModal('modal-add-doc');
+  toast('📁 Document ajouté');
   renderDocs();
-  event.target.value='';
 }
 
 async function renderDocs() {
-  const docs=await idbGetAll('documents');
-  const countEl=document.getElementById('doc-count');
-  if(countEl) countEl.textContent=docs.length+' fichier(s)';
-  const el=document.getElementById('docs-grid');
-  if(!docs.length){
-    el.innerHTML=`<div class="no-data" style="grid-column:1/-1"><div class="icon">📁</div><div>Aucun document. Importez vos fichiers.</div></div>`;
+  const docs = getDocLinks();
+  const countEl = document.getElementById('doc-count');
+  if(countEl) countEl.textContent = docs.length + ' lien(s)';
+  const el = document.getElementById('docs-grid');
+  if(!docs.length) {
+    el.innerHTML = `<div class="no-data" style="grid-column:1/-1"><div class="icon">📁</div><div>Aucun document. Ajoutez votre premier lien.</div></div>`;
     return;
   }
-  el.innerHTML=docs.sort((a,b)=>b.date?.localeCompare(a.date||'')).map(d=>{
-    const isImg=d.type&&d.type.startsWith('image/');
-    const isPdf=d.type==='application/pdf';
-    const icon=isPdf?'📄':isImg?'🖼️':'📎';
-    const sizeStr=d.size>=1048576?(d.size/1048576).toFixed(1)+' MB':(d.size/1024).toFixed(0)+' KB';
+  el.innerHTML = docs.sort((a,b) => (b.date||'').localeCompare(a.date||'')).map(d => {
+    const icon = d.type === 'pdf' ? '📄' : d.type === 'image' ? '🖼️' : '📎';
     return `<div class="card" style="display:flex;flex-direction:column;gap:10px;transition:all 0.2s" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform=''">
-      <div style="height:110px;border-radius:10px;overflow:hidden;cursor:pointer;background:rgba(0,10,28,0.5)" onclick="previewDoc(${JSON.stringify(d.id)})">
-        ${isImg?`<img src="${d.data}" style="width:100%;height:100%;object-fit:cover;display:block" alt="${d.name}">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:44px">${icon}</div>`}
-      </div>
+      <div style="height:110px;border-radius:10px;overflow:hidden;cursor:pointer;background:rgba(0,10,28,0.5);display:flex;align-items:center;justify-content:center;font-size:52px" onclick="previewDoc(${JSON.stringify(d.id)})">${icon}</div>
       <div style="font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary)" title="${d.name}">${d.name}</div>
-      <div style="font-size:10px;color:var(--text-muted)">${sizeStr}${d.date?' • '+d.date.slice(0,10):''}</div>
+      <div style="font-size:10px;color:var(--text-muted)">${d.date ? d.date.slice(0,10) : ''}</div>
       <div class="row" style="gap:5px">
-        <button class="btn btn-outline btn-xs flex-1" onclick="previewDoc(${JSON.stringify(d.id)})">👁 Voir</button>
-        <button class="btn btn-outline btn-xs" onclick="downloadDoc(${JSON.stringify(d.id)})" title="Télécharger">⬇️</button>
+        <button class="btn btn-outline btn-xs flex-1" onclick="previewDoc(${JSON.stringify(d.id)})">🔗 Voir</button>
         <button class="btn btn-danger btn-xs write-action" onclick="deleteDoc(${JSON.stringify(d.id)})" title="Supprimer">🗑️</button>
       </div>
     </div>`;
   }).join('');
 }
 
-async function previewDoc(id) {
-  const doc=await idbGet('documents',id); if(!doc)return;
-  document.getElementById('doc-preview-name').textContent=doc.name;
-  const content=document.getElementById('doc-preview-content');
-  if(doc.type==='application/pdf') {
-    content.innerHTML=`<embed src="${doc.data}" type="application/pdf" width="100%" height="520px" style="border-radius:10px">`;
-  } else if(doc.type&&doc.type.startsWith('image/')) {
-    content.innerHTML=`<img src="${doc.data}" style="width:100%;border-radius:10px;max-height:65vh;object-fit:contain;display:block" alt="${doc.name}">`;
-  } else {
-    content.innerHTML=`<div style="padding:28px;color:var(--text-muted);text-align:center">Prévisualisation non disponible pour ce type de fichier</div>`;
-  }
-  document.getElementById('doc-dl-btn').onclick=()=>downloadDoc(id);
+function previewDoc(id) {
+  const docs = getDocLinks();
+  const doc = docs.find(d => d.id == id);
+  if(!doc) return;
+  document.getElementById('doc-preview-name').textContent = doc.name;
+  document.getElementById('doc-preview-link-display').textContent = doc.url;
+  document.getElementById('doc-preview-open-btn').href = doc.url;
   openModal('modal-doc-preview');
 }
 
-async function downloadDoc(id) {
-  const doc=await idbGet('documents',id); if(!doc)return;
-  const a=document.createElement('a'); a.href=doc.data; a.download=doc.name; a.click();
-  toast('⬇️ Téléchargement démarré');
+function deleteDoc(id) {
+  if(!confirm('Supprimer ce document ?')) return;
+  const docs = getDocLinks().filter(d => d.id != id);
+  saveDocLinks(docs);
+  renderDocs();
+  toast('🗑️ Document supprimé');
 }
 
-async function deleteDoc(id) {
-  if(!confirm('Supprimer ce document ?'))return;
-  await idbDel('documents',id); renderDocs(); toast('🗑️ Document supprimé');
+// ══════════════════════════════════════════════
+// GALLERY (mode liens)
+// ══════════════════════════════════════════════
+let _pendingFiles = null;
+
+function getGalleryLinks() {
+  try { return JSON.parse(localStorage.getItem('lina_gallery_links') || '[]'); } catch(e) { return []; }
+}
+function saveGalleryLinks(arr) {
+  localStorage.setItem('lina_gallery_links', JSON.stringify(arr));
 }
 
-// Drag & drop
-const dz=document.getElementById('doc-drop-zone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});
-dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
-dz.addEventListener('drop',e=>{
-  e.preventDefault(); dz.classList.remove('dragover');
-  const mockEvt={target:{files:e.dataTransfer.files,value:''}};
-  handleDocUpload(mockEvt);
-});
-
-// ══════════════════════════════════════════════
-// GALLERY
-// ══════════════════════════════════════════════
-let _pendingFiles=null;
-
-function setGalleryFilter(el,f) {
-  galleryFilter=f;
-  document.querySelectorAll('#gallery-filters .filter-chip').forEach(c=>c.classList.remove('active'));
+function setGalleryFilter(el, f) {
+  galleryFilter = f;
+  document.querySelectorAll('#gallery-filters .filter-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   renderGallery();
 }
 
-function handleGalleryUpload(event) {
-  const files=Array.from(event.target.files);
-  if(!files.length)return;
-  _pendingFiles=files;
-  event.target.value='';
-  openModal('modal-gallery-cat');
-}
-
-async function selectCat(cat) {
-  closeModal('modal-gallery-cat');
-  if(!_pendingFiles||!_pendingFiles.length)return;
-  for(const file of _pendingFiles) {
-    await new Promise(res=>{
-      const reader=new FileReader();
-      reader.onload=async e=>{
-        await idbPut('gallery',{id:Date.now()+Math.random(),name:file.name,cat,data:e.target.result,notes:'',date:new Date().toISOString()});
-        res();
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-  toast(`📸 ${_pendingFiles.length} setup(s) importé(s) — ${cat}`);
-  _pendingFiles=null;
+function saveGalleryLink() {
+  const name = document.getElementById('new-gal-name').value.trim();
+  const url = document.getElementById('new-gal-url').value.trim();
+  const cat = document.getElementById('new-gal-cat').value;
+  if(!name || !url) { toast('⚠️ Remplis le nom et le lien'); return; }
+  const items = getGalleryLinks();
+  items.push({ id: Date.now() + Math.random(), name, url, cat, notes: '', date: new Date().toISOString() });
+  saveGalleryLinks(items);
+  document.getElementById('new-gal-name').value = '';
+  document.getElementById('new-gal-url').value = '';
+  closeModal('modal-add-gallery');
+  toast('📸 Setup ajouté');
   renderGallery();
 }
 
 async function renderGallery() {
-  let items=await idbGetAll('gallery');
-  if(galleryFilter!=='all') items=items.filter(i=>i.cat===galleryFilter);
-  items.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  const el=document.getElementById('gallery-grid');
-  if(!items.length){
-    el.innerHTML=`<div class="no-data" style="grid-column:1/-1"><div class="icon">📸</div><div>Aucun setup${galleryFilter!=='all'?' pour '+galleryFilter:''}. Importez vos captures.</div></div>`;
+  let items = getGalleryLinks();
+  if(galleryFilter !== 'all') items = items.filter(i => i.cat === galleryFilter);
+  items.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const el = document.getElementById('gallery-grid');
+  if(!items.length) {
+    el.innerHTML = `<div class="no-data" style="grid-column:1/-1"><div class="icon">📸</div><div>Aucun setup${galleryFilter !== 'all' ? ' pour ' + galleryFilter : ''}. Ajoutez un lien.</div></div>`;
     return;
   }
-  el.innerHTML=items.map(item=>`
-    <div class="gallery-item">
-      <img class="gallery-img" src="${item.data}" alt="${item.name}" onclick="openGalleryDetail(${JSON.stringify(item.id)})">
+  el.innerHTML = items.map(item => `
+    <div class="gallery-item" style="cursor:pointer">
+      <div class="gallery-img" style="display:flex;align-items:center;justify-content:center;font-size:42px;background:rgba(0,10,28,0.5)" onclick="openGalleryDetail(${JSON.stringify(item.id)})">📸</div>
       <div class="gallery-info">
         <div class="gallery-name" title="${item.name}">${item.name}</div>
         <div class="row" style="gap:5px;flex-wrap:wrap">
           <span class="badge badge-cyan" style="font-size:9px">${item.cat||'—'}</span>
-          <button class="btn btn-outline btn-xs" onclick="openGalleryDetail(${JSON.stringify(item.id)})" style="margin-left:auto">👁</button>
+          <button class="btn btn-outline btn-xs" onclick="openGalleryDetail(${JSON.stringify(item.id)})" style="margin-left:auto">🔗</button>
           <button class="btn btn-danger btn-xs write-action" onclick="event.stopPropagation();deleteGalleryItem(${JSON.stringify(item.id)})">🗑️</button>
         </div>
       </div>
     </div>`).join('');
 }
 
-async function openGalleryDetail(id) {
-  const item=await idbGet('gallery',id); if(!item)return;
-  currentGalleryItem=item;
-  document.getElementById('gallery-detail-name').textContent=item.name;
-  document.getElementById('gallery-detail-img').src=item.data;
-  document.getElementById('gallery-detail-cat').textContent=item.cat||'';
-  document.getElementById('gallery-detail-date').textContent=item.date?item.date.slice(0,10):'';
-  const notesEl=document.getElementById('gallery-detail-notes');
-  notesEl.textContent=item.notes||'';
-  notesEl.dataset.id=id;
+function openGalleryDetail(id) {
+  const items = getGalleryLinks();
+  const item = items.find(i => i.id == id);
+  if(!item) return;
+  currentGalleryItem = item;
+  document.getElementById('gallery-detail-name').textContent = item.name;
+  document.getElementById('gallery-detail-link-display').textContent = item.url;
+  document.getElementById('gallery-detail-open-btn').href = item.url;
+  document.getElementById('gallery-detail-cat').textContent = item.cat || '';
+  document.getElementById('gallery-detail-date').textContent = item.date ? item.date.slice(0,10) : '';
+  const notesEl = document.getElementById('gallery-detail-notes');
+  notesEl.textContent = item.notes || '';
+  notesEl.dataset.id = id;
   openModal('modal-gallery-detail');
 }
 
-async function saveGalleryNotes() {
-  const notesEl=document.getElementById('gallery-detail-notes');
-  const id=parseFloat(notesEl.dataset.id);
-  if(!id)return;
-  const item=await idbGet('gallery',id);
-  if(!item)return;
-  item.notes=notesEl.textContent;
-  await idbPut('gallery',item);
-  if(currentGalleryItem&&currentGalleryItem.id===id) currentGalleryItem.notes=item.notes;
+function saveGalleryNotes() {
+  const notesEl = document.getElementById('gallery-detail-notes');
+  const id = parseFloat(notesEl.dataset.id);
+  if(!id) return;
+  const items = getGalleryLinks();
+  const item = items.find(i => i.id == id);
+  if(!item) return;
+  item.notes = notesEl.textContent;
+  saveGalleryLinks(items);
+  if(currentGalleryItem && currentGalleryItem.id == id) currentGalleryItem.notes = item.notes;
 }
 
 function downloadGalleryImg() {
-  if(!currentGalleryItem)return;
-  const a=document.createElement('a'); a.href=currentGalleryItem.data; a.download=currentGalleryItem.name; a.click();
+  if(!currentGalleryItem) return;
+  window.open(currentGalleryItem.url, '_blank');
 }
 
-async function deleteGalleryItem(id) {
-  if(!confirm('Supprimer ce setup ?'))return;
-  await idbDel('gallery',id); renderGallery(); toast('🗑️ Setup supprimé');
+function deleteGalleryItem(id) {
+  if(!confirm('Supprimer ce setup ?')) return;
+  const items = getGalleryLinks().filter(i => i.id != id);
+  saveGalleryLinks(items);
+  renderGallery();
+  toast('🗑️ Setup supprimé');
 }
+
+function handleGalleryUpload(event) { /* désactivé – mode liens */ }
+function selectCat(cat) { /* désactivé – mode liens */ }
 
 // ══════════════════════════════════════════════
 // SCRIPTS
@@ -2544,15 +2585,15 @@ async function renderSettings() {
   document.getElementById('settings-capital').value=DB.settings.capital||10000;
   document.getElementById('settings-currency').value=DB.settings.currency||'USD';
   document.getElementById('settings-defrisk').value=DB.settings.defRisk||1;
-  const docs=await idbGetAll('documents');
-  const gallery=await idbGetAll('gallery');
+  const docs=getDocLinks();
+  const gallery=getGalleryLinks();
   const lsSize=(JSON.stringify(DB).length/1024).toFixed(1);
   document.getElementById('storage-stats').innerHTML=`
     Trades: <b style="color:var(--cyan)">${DB.trades.length}</b><br>
     Prop Firms: <b style="color:var(--cyan)">${DB.props.length}</b><br>
     Scripts: <b style="color:var(--cyan)">${DB.scripts.length}</b><br>
-    Documents: <b style="color:var(--cyan)">${docs.length}</b><br>
-    Setups: <b style="color:var(--cyan)">${gallery.length}</b><br>
+    Documents (liens): <b style="color:var(--cyan)">${docs.length}</b><br>
+    Setups (liens): <b style="color:var(--cyan)">${gallery.length}</b><br>
     LocalStorage: <b>${lsSize} KB</b>`;
 }
 
