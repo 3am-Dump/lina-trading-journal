@@ -624,7 +624,7 @@
       </div>
       <div class="topbar-right">
         <div id="topbar-date" style="font-size:11px;color:var(--text-muted)"></div>
-        <button class="btn btn-primary btn-sm" onclick="quickAddTrade()">+ Trade</button>
+        <button class="btn btn-primary btn-sm write-action" onclick="quickAddTrade()">+ Trade</button>
       </div>
     </div>
 
@@ -672,7 +672,7 @@
               <span>🔍</span>
               <input type="text" placeholder="Rechercher..." id="journal-search" oninput="filterTrades()">
             </div>
-            <button class="btn btn-primary" onclick="openTradeModal()">+ Ajouter Trade</button>
+            <button class="btn btn-primary write-action" onclick="openTradeModal()">+ Ajouter Trade</button>
           </div>
         </div>
         <div class="filter-bar" id="journal-filters">
@@ -932,7 +932,7 @@
       <div id="section-propfirm" class="section">
         <div class="section-header">
           <div class="section-title">🎯 Prop Firm Tracker</div>
-          <button class="btn btn-primary" onclick="openPropModal()">+ Nouveau Challenge</button>
+          <button class="btn btn-primary write-action" onclick="openPropModal()">+ Nouveau Challenge</button>
         </div>
         <div class="grid grid-2" id="prop-list"></div>
       </div>
@@ -943,7 +943,7 @@
           <div class="section-title">📁 Documents</div>
           <div class="row" style="gap:8px">
             <span id="doc-count" style="font-size:11px;color:var(--text-muted)"></span>
-            <button class="btn btn-primary" onclick="document.getElementById('doc-upload-input').click()">📎 Importer</button>
+            <button class="btn btn-primary write-action" onclick="document.getElementById('doc-upload-input').click()">📎 Importer</button>
           </div>
         </div>
         <input type="file" id="doc-upload-input" accept=".pdf,.png,.jpg,.jpeg" style="display:none" onchange="handleDocUpload(event)" multiple>
@@ -966,7 +966,7 @@
       <div id="section-gallery" class="section">
         <div class="section-header">
           <div class="section-title">📸 Galerie de Setups</div>
-          <button class="btn btn-primary" onclick="document.getElementById('gallery-upload-input').click()">📸 Ajouter Setup</button>
+          <button class="btn btn-primary write-action" onclick="document.getElementById('gallery-upload-input').click()">📸 Ajouter Setup</button>
         </div>
         <input type="file" id="gallery-upload-input" accept="image/*" style="display:none" onchange="handleGalleryUpload(event)" multiple>
         <div class="filter-bar" id="gallery-filters">
@@ -989,7 +989,7 @@
       <div id="section-scripts" class="section">
         <div class="section-header">
           <div class="section-title">📜 TradingView & Scripts</div>
-          <button class="btn btn-primary" onclick="openScriptModal()">+ Ajouter Script</button>
+          <button class="btn btn-primary write-action" onclick="openScriptModal()">+ Ajouter Script</button>
         </div>
         <div id="scripts-list"></div>
       </div>
@@ -1018,7 +1018,7 @@
               <label class="form-label">Risque par Défaut (%)</label>
               <input class="form-input" type="number" id="settings-defrisk" value="1" step="0.1">
             </div>
-            <button class="btn btn-primary" onclick="saveSettings()" style="width:100%">💾 Sauvegarder le Profil</button>
+            <button class="btn btn-primary write-action" onclick="saveSettings()" style="width:100%">💾 Sauvegarder le Profil</button>
           </div>
           <div class="card">
             <div class="card-title mb-14">💾 Gestion des Données</div>
@@ -1027,7 +1027,7 @@
               <button class="btn btn-outline" onclick="document.getElementById('import-data-input').click()">📤 Importer JSON</button>
               <input type="file" id="import-data-input" accept=".json" style="display:none" onchange="importAllData(event)">
               <div class="divider"></div>
-              <button class="btn btn-danger" onclick="clearAllData()">🗑️ Effacer toutes les données</button>
+              <button class="btn btn-danger write-action" onclick="clearAllData()">🗑️ Effacer toutes les données</button>
             </div>
             <div class="divider"></div>
             <div class="card-title mb-8">📊 Statistiques Stockage</div>
@@ -1177,7 +1177,7 @@
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-outline" onclick="closeModal('modal-trade')">Annuler</button>
-      <button class="btn btn-primary" onclick="saveTrade()">💾 Sauvegarder</button>
+      <button class="btn btn-primary write-action" onclick="saveTrade()">💾 Sauvegarder</button>
     </div>
   </div>
 </div>
@@ -1225,7 +1225,7 @@
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-outline" onclick="closeModal('modal-prop')">Annuler</button>
-      <button class="btn btn-primary" onclick="saveProp()">💾 Sauvegarder</button>
+      <button class="btn btn-primary write-action" onclick="saveProp()">💾 Sauvegarder</button>
     </div>
   </div>
 </div>
@@ -1251,7 +1251,7 @@
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
       <button class="btn btn-outline" onclick="closeModal('modal-script')">Annuler</button>
-      <button class="btn btn-primary" onclick="saveScript()">💾 Sauvegarder</button>
+      <button class="btn btn-primary write-action" onclick="saveScript()">💾 Sauvegarder</button>
     </div>
   </div>
 </div>
@@ -1593,8 +1593,8 @@ function renderTrades() {
       <td style="font-weight:700">${pnl}</td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text-muted)" title="${escapeHtml(t.notes||'')}">${t.notes||'—'}</td>
       <td><div class="td-actions">
-        <button class="btn btn-outline btn-xs" onclick="openTradeModal(${t.id})" title="Modifier">✏️</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteTrade(${t.id})" title="Supprimer">🗑️</button>
+        <button class="btn btn-outline btn-xs write-action" onclick="openTradeModal(${t.id})" title="Modifier">✏️</button>
+        <button class="btn btn-danger btn-xs write-action" onclick="deleteTrade(${t.id})" title="Supprimer">🗑️</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -2258,9 +2258,9 @@ function renderProps() {
       <div class="card-title mt-12">⚠️ Utilisation du Drawdown — ${ddUsed.toFixed(1)}%</div>
       <div class="progress-bar-wrap"><div class="progress-bar-fill ${ddUsed>80?'fill-red':'fill-yellow'}" style="width:${ddBarPct}%"></div></div>
       <div class="row mt-12" style="gap:6px;justify-content:flex-end">
-        <button class="btn btn-success btn-xs" onclick="updatePropProfit(${p.id})">💵 P&L</button>
-        <button class="btn btn-outline btn-xs" onclick="openPropModal(${p.id})">✏️ Modifier</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteProp(${p.id})">🗑️</button>
+        <button class="btn btn-success btn-xs write-action" onclick="updatePropProfit(${p.id})">💵 P&L</button>
+        <button class="btn btn-outline btn-xs write-action" onclick="openPropModal(${p.id})">✏️ Modifier</button>
+        <button class="btn btn-danger btn-xs write-action" onclick="deleteProp(${p.id})">🗑️</button>
       </div>
     </div>`;
   }).join('');
@@ -2310,7 +2310,7 @@ async function renderDocs() {
       <div class="row" style="gap:5px">
         <button class="btn btn-outline btn-xs flex-1" onclick="previewDoc(${JSON.stringify(d.id)})">👁 Voir</button>
         <button class="btn btn-outline btn-xs" onclick="downloadDoc(${JSON.stringify(d.id)})" title="Télécharger">⬇️</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteDoc(${JSON.stringify(d.id)})" title="Supprimer">🗑️</button>
+        <button class="btn btn-danger btn-xs write-action" onclick="deleteDoc(${JSON.stringify(d.id)})" title="Supprimer">🗑️</button>
       </div>
     </div>`;
   }).join('');
@@ -2407,7 +2407,7 @@ async function renderGallery() {
         <div class="row" style="gap:5px;flex-wrap:wrap">
           <span class="badge badge-cyan" style="font-size:9px">${item.cat||'—'}</span>
           <button class="btn btn-outline btn-xs" onclick="openGalleryDetail(${JSON.stringify(item.id)})" style="margin-left:auto">👁</button>
-          <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();deleteGalleryItem(${JSON.stringify(item.id)})">🗑️</button>
+          <button class="btn btn-danger btn-xs write-action" onclick="event.stopPropagation();deleteGalleryItem(${JSON.stringify(item.id)})">🗑️</button>
         </div>
       </div>
     </div>`).join('');
@@ -2502,8 +2502,8 @@ function renderScripts() {
         </div>
         <div class="row" style="gap:6px;flex-shrink:0">
           <button class="btn btn-success btn-sm" onclick="copyCode(${JSON.stringify(s.code)})">📋 Copier</button>
-          <button class="btn btn-outline btn-sm" onclick="openScriptModal(${s.id})">✏️</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteScript(${s.id})">🗑️</button>
+          <button class="btn btn-outline btn-sm write-action" onclick="openScriptModal(${s.id})">✏️</button>
+          <button class="btn btn-danger btn-sm write-action" onclick="deleteScript(${s.id})">🗑️</button>
         </div>
       </div>
       <pre class="code-display">${escapeHtml(s.code||'// Aucun code')}</pre>
@@ -2850,19 +2850,13 @@ document.addEventListener('DOMContentLoaded', init);
 </script>
 
 <style>
-  /* En lecture seule (non connecté) : on désactive visuellement les actions d'écriture */
-  body.read-only .nav-item[onclick*="openTradeModal"],
-  body.read-only button[onclick*="saveTrade"],
-  body.read-only button[onclick*="deleteTrade"],
-  body.read-only button[onclick*="saveProp"],
-  body.read-only button[onclick*="deleteProp"],
-  body.read-only button[onclick*="saveScript"],
-  body.read-only button[onclick*="deleteScript"],
-  body.read-only button[onclick*="clearAllData"],
-  body.read-only button[onclick*="openTradeModal"],
-  body.read-only button[onclick*="openPropModal"],
-  body.read-only button[onclick*="openScriptModal"] {
-    opacity: 0.4; pointer-events: none; cursor: not-allowed;
+  /* Mode visiteur (non connecté) : toutes les actions d'ajout/modification/suppression
+     sont grisées et inaccessibles. La navigation (.nav-item, sidebar) reste libre. */
+  body.read-only .write-action {
+    opacity: 0.35;
+    pointer-events: none;
+    cursor: not-allowed;
+    filter: grayscale(1);
   }
 </style>
 </body>
