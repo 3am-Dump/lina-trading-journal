@@ -1368,6 +1368,7 @@ const CHECKLIST_B64 = "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImZyIj4KPGhlYWQ+CjxtZ
 // ══════════════════════════════════════════════
 let DB = {
   trades: [], props: [], scripts: [],
+  docLinks: [], galleryLinks: [],
   settings: { name:'Lina', capital:10000, currency:'USD', defRisk:1 }
 };
 window.DB = DB;
@@ -2338,10 +2339,12 @@ function renderProps() {
 // DOCUMENTS (mode liens)
 // ══════════════════════════════════════════════
 function getDocLinks() {
-  try { return JSON.parse(localStorage.getItem('lina_doc_links') || '[]'); } catch(e) { return []; }
+  if (!DB.docLinks) DB.docLinks = [];
+  return DB.docLinks;
 }
 function saveDocLinks(arr) {
-  localStorage.setItem('lina_doc_links', JSON.stringify(arr));
+  DB.docLinks = arr;
+  saveDB();
 }
 
 function saveDocLink() {
@@ -2406,10 +2409,12 @@ function deleteDoc(id) {
 let _pendingFiles = null;
 
 function getGalleryLinks() {
-  try { return JSON.parse(localStorage.getItem('lina_gallery_links') || '[]'); } catch(e) { return []; }
+  if (!DB.galleryLinks) DB.galleryLinks = [];
+  return DB.galleryLinks;
 }
 function saveGalleryLinks(arr) {
-  localStorage.setItem('lina_gallery_links', JSON.stringify(arr));
+  DB.galleryLinks = arr;
+  saveDB();
 }
 
 function setGalleryFilter(el, f) {
@@ -2789,6 +2794,8 @@ function refreshAllUI() {
   renderTrades();
   if (typeof renderProps === 'function') renderProps();
   if (typeof renderScripts === 'function') renderScripts();
+  if (typeof renderDocs === 'function') renderDocs();
+  if (typeof renderGallery === 'function') renderGallery();
   document.getElementById('settings-defrisk').value=DB.settings.defRisk||1;
 }
 window.refreshAllUI = refreshAllUI;
