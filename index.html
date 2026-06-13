@@ -2641,9 +2641,14 @@ function importAllData(event) {
 async function clearAllData() {
   if(!confirm('⚠️ EFFACER toutes les données ?\n\nCette action est irréversible.\nTous les trades, props, scripts, documents et setups seront supprimés (local + Firebase).'))return;
 
+  // Empêche le listener temps réel de réinjecter l'ancienne version
+  // pendant que l'écrasement cloud est en cours
+  window.suppressSnapshot = true;
+
   // 1. Reset DB en mémoire + localStorage + Firebase
   DB={trades:[],props:[],scripts:[],settings:{name:'Lina',capital:10000,currency:'USD',defRisk:1}};
-  saveDB();
+  localStorage.setItem('lina_db', JSON.stringify(DB));
+  await window.cloudSaveDB();
 
   // 2. Vider l'IndexedDB (documents & galerie)
   if(idbDB) {
@@ -2655,6 +2660,7 @@ async function clearAllData() {
     });
   }
 
+  window.suppressSnapshot = false;
   toast('🗑️ Toutes les données ont été effacées');
   showSection('dashboard');
   refreshAllUI();
@@ -2873,7 +2879,9 @@ document.addEventListener('DOMContentLoaded', init);
   }
 
   // ── Realtime listener: tout le monde reçoit les changements en direct ──
+  window.suppressSnapshot = false;
   onSnapshot(dbDocRef, (snap) => {
+    if (window.suppressSnapshot) return; // ignore les échos pendant une opération locale critique
     if (snap.exists()) {
       const data = snap.data();
       if (data && data.db) {
@@ -2897,14 +2905,19 @@ document.addEventListener('DOMContentLoaded', init);
 
   // ── Sauvegarde vers le cloud (appelée depuis saveDB) ──
   window.cloudSaveDB = function() {
-    if (applyingRemote) return; // éviter boucle infinie
-    if (!canWrite) return; // lecture seule si pas connecté
-    setDoc(dbDocRef, { db: JSON.stringify(window.DB), updatedAt: Date.now() })
+    if (applyingRemote) return Promise.resolve(); // éviter boucle infinie
+    if (!canWrite) return Promise.resolve(); // lecture seule si pas connecté
+    return setDoc(dbDocRef, { db: JSON.stringify(window.DB), updatedAt: Date.now() })
       .catch(err => { console.error('Cloud save error', err); toast('⚠️ Erreur de synchronisation','error'); });
   };
 
   // ── Auth state ──
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
+    // Force le rafraîchissement du token pour éviter un état "canWrite" bloqué
+    // après une session corrompue (ex: suite à un reset de données).
+    if (user) {
+      try { await user.getIdToken(true); } catch(e) { console.error('Token refresh error', e); }
+    }
     canWrite = !!user;
     const navLabel = document.getElementById('auth-nav-label');
     const loggedOut = document.getElementById('auth-logged-out');
@@ -2943,6 +2956,16 @@ document.addEventListener('DOMContentLoaded', init);
   window.doLogout = function() {
     signOut(auth).then(() => { closeModal('modal-auth'); toast('🔒 Déconnecté'); });
   };
+
+  // ── Auto-refresh du token toutes les 10 min pour éviter les sessions
+  //    bloquées en lecture seule sans action de l'utilisateur ──
+  setInterval(async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try { await user.getIdToken(true); canWrite = true; }
+      catch(e) { console.error('Token auto-refresh error', e); }
+    }
+  }, 10 * 60 * 1000);
 </script>
 
 <style>
