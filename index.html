@@ -2638,10 +2638,26 @@ function importAllData(event) {
   reader.readAsText(file); event.target.value='';
 }
 
-function clearAllData() {
-  if(!confirm('⚠️ EFFACER toutes les données ?\n\nCette action est irréversible.\nDocuments et Setups (IndexedDB) ne seront pas effacés.'))return;
+async function clearAllData() {
+  if(!confirm('⚠️ EFFACER toutes les données ?\n\nCette action est irréversible.\nTous les trades, props, scripts, documents et setups seront supprimés (local + Firebase).'))return;
+
+  // 1. Reset DB en mémoire + localStorage + Firebase
   DB={trades:[],props:[],scripts:[],settings:{name:'Lina',capital:10000,currency:'USD',defRisk:1}};
-  saveDB(); toast('🗑️ Données effacées'); showSection('dashboard');
+  saveDB();
+
+  // 2. Vider l'IndexedDB (documents & galerie)
+  if(idbDB) {
+    await new Promise(r => {
+      const tx = idbDB.transaction(['documents','gallery'],'readwrite');
+      tx.objectStore('documents').clear();
+      tx.objectStore('gallery').clear();
+      tx.oncomplete = r;
+    });
+  }
+
+  toast('🗑️ Toutes les données ont été effacées');
+  showSection('dashboard');
+  refreshAllUI();
 }
 
 // ══════════════════════════════════════════════
