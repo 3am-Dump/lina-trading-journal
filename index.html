@@ -361,30 +361,23 @@
   .dot-be { background: rgba(255,255,255,0.28); }
   .cal-pnl { font-size: 8px; font-weight: 700; }
 
-  /* ─── CALENDAR MOBILE FIX ─── */
-  @media (max-width: 600px) {
-    #cal-grid { gap: 2px; }
-    .cal-day-name {
-      font-size: 7px;
-      padding: 5px 0;
-      letter-spacing: 0;
-      /* Afficher seulement la 1ère lettre sur très petit écran */
-      overflow: hidden;
-      white-space: nowrap;
-    }
-    .cal-day {
-      font-size: 10px;
-      border-radius: 7px;
-      gap: 1px;
-    }
-    .cal-dot { width: 4px; height: 4px; }
-    .cal-pnl { font-size: 6px; }
+  /* ─── CALENDAR LAYOUT ─── */
+  .cal-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 16px;
+    align-items: start;
   }
-  @media (max-width: 380px) {
-    #cal-grid { gap: 1px; }
-    .cal-day-name { font-size: 6px; padding: 4px 0; }
-    .cal-day { font-size: 9px; border-radius: 5px; }
-    .cal-pnl { display: none; }
+  .cal-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .cal-sidebar .mb-14 { margin-bottom: 0; }
+  @media (max-width: 700px) {
+    .cal-layout {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* ─── GALLERY ─── */
@@ -846,11 +839,11 @@
             <button class="btn btn-outline btn-sm" onclick="calGoToday()">Aujourd'hui</button>
           </div>
         </div>
-        <div class="grid grid-2 mb-20" style="grid-template-columns:1fr 280px">
-          <div class="card">
+        <div class="cal-layout mb-20">
+          <div class="card cal-main">
             <div id="cal-grid"></div>
           </div>
-          <div>
+          <div class="cal-sidebar">
             <div class="card mb-14" id="cal-day-detail">
               <div class="card-title">📌 Journée Sélectionnée</div>
               <div id="cal-detail-content" class="text-muted" style="font-size:12px;margin-top:8px">Cliquez sur un jour pour voir les trades</div>
